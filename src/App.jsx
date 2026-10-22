@@ -486,9 +486,20 @@ function App() {
           <small>THE EVERYDAY EDIT</small>
         </a>
         <nav className={`main-nav ${mobileMenuOpen ? "is-open" : ""}`}>
-          <a href="/new-in" onClick={(event) => { event.preventDefault(); navigate("/new-in"); }}>New in</a>
+          <a
+            href="/new-in"
+            aria-current={currentPath === "/new-in" ? "page" : undefined}
+            onClick={(event) => { event.preventDefault(); navigate("/new-in"); }}
+          >
+            New in
+          </a>
           <div className="nav-dropdown">
-            <a href="/shop" onClick={(event) => { event.preventDefault(); navigate("/shop"); }}>
+            <a
+              href="/shop"
+              className={currentPath === "/shop" || currentPath.startsWith("/collections/") ? "is-active" : ""}
+              aria-current={currentPath === "/shop" ? "page" : undefined}
+              onClick={(event) => { event.preventDefault(); navigate("/shop"); }}
+            >
               Shop all <ChevronDown size={13} />
             </a>
             <div className="dropdown-menu">
@@ -496,6 +507,7 @@ function App() {
                 <a
                   href={`/collections/${category.name.toLowerCase()}`}
                   key={category.name}
+                  aria-current={currentPath === `/collections/${category.name.toLowerCase()}` ? "page" : undefined}
                   onClick={(event) => { event.preventDefault(); navigate(`/collections/${category.name.toLowerCase()}`); }}
                 >
                   {category.name}
@@ -503,8 +515,8 @@ function App() {
               ))}
             </div>
           </div>
-          <a href="/our-story" onClick={(event) => { event.preventDefault(); navigate("/our-story"); }}>Our story</a>
-          <a href="/journal" onClick={(event) => { event.preventDefault(); navigate("/journal"); }}>The journal</a>
+          <a href="/our-story" aria-current={currentPath === "/our-story" ? "page" : undefined} onClick={(event) => { event.preventDefault(); navigate("/our-story"); }}>Our story</a>
+          <a href="/journal" aria-current={currentPath === "/journal" ? "page" : undefined} onClick={(event) => { event.preventDefault(); navigate("/journal"); }}>The journal</a>
         </nav>
         <div className="header-actions">
           <label className="search-control">

@@ -92,13 +92,15 @@ button:disabled {
 .site-header {
   height: 82px;
   padding: 0 5.55%;
-  position: relative;
+  position: sticky;
+  top: 0;
   z-index: 10;
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   background: var(--paper);
-  border-bottom: 1px solid rgba(37, 36, 31, 0.07);
+  border-bottom: 1px solid rgba(37, 36, 31, 0.08);
+  box-shadow: 0 5px 18px rgba(37, 36, 31, 0.025);
 }
 
 .wordmark {
@@ -140,12 +142,38 @@ button:disabled {
 
 .main-nav > a,
 .nav-dropdown > a {
+  position: relative;
+  padding: 10px 0;
+  color: #57544c;
   transition: color 160ms ease;
 }
 
 .main-nav > a:hover,
-.nav-dropdown > a:hover {
+.nav-dropdown > a:hover,
+.main-nav > a[aria-current="page"],
+.nav-dropdown > a.is-active {
   color: var(--gold);
+}
+
+.main-nav > a::after,
+.nav-dropdown > a::after {
+  height: 1px;
+  position: absolute;
+  right: 0;
+  bottom: 3px;
+  left: 0;
+  background: var(--gold);
+  content: "";
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 180ms ease;
+}
+
+.main-nav > a:hover::after,
+.main-nav > a[aria-current="page"]::after,
+.nav-dropdown > a:hover::after,
+.nav-dropdown > a.is-active::after {
+  transform: scaleX(1);
 }
 
 .nav-dropdown {
@@ -160,15 +188,16 @@ button:disabled {
 }
 
 .dropdown-menu {
-  min-width: 160px;
-  padding: 9px;
+  min-width: 185px;
+  padding: 12px;
   position: absolute;
   top: 100%;
   left: -18px;
   display: grid;
   gap: 2px;
+  border: 1px solid #e9e4da;
   background: #fffefa;
-  box-shadow: 0 12px 30px #25241f1c;
+  box-shadow: 0 16px 36px #25241f20;
   opacity: 0;
   visibility: hidden;
   transform: translateY(6px);
@@ -184,13 +213,16 @@ button:disabled {
 
 .dropdown-menu a {
   display: block;
-  padding: 10px;
+  padding: 11px 12px;
+  color: #625f57;
   text-align: left;
   font-size: 11px;
+  transition: background 150ms ease, color 150ms ease;
 }
 
 .dropdown-menu a:hover {
   background: var(--paper);
+  color: #92754e;
 }
 
 .header-actions {
