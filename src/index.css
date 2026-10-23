@@ -1542,7 +1542,13 @@ p {
 
   .category-grid,
   .product-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 12px;
+  }
+
+  .campaign-copy {
+    padding-right: 9%;
+    padding-left: 9%;
   }
 
   .shop-controls {
@@ -1562,7 +1568,7 @@ p {
   }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 850px) {
   html {
     scroll-padding-top: 68px;
   }
@@ -1647,17 +1653,20 @@ p {
 
   .dropdown-menu {
     position: static;
-    display: none;
-    padding-left: 10px;
+    display: grid;
+    padding: 0 0 8px 10px;
+    border: 0;
+    background: transparent;
     box-shadow: none;
     opacity: 1;
     visibility: visible;
     transform: none;
   }
 
-  .nav-dropdown:hover .dropdown-menu,
-  .nav-dropdown:focus-within .dropdown-menu {
-    display: grid;
+  .dropdown-menu a {
+    min-height: 38px;
+    display: flex;
+    align-items: center;
   }
 
   .hero {
@@ -2140,7 +2149,7 @@ p {
   font-size: 9px;
 }
 
-@media (max-width: 760px) {
+@media (max-width: 850px) {
   .collection-hero {
     min-height: 380px;
   }
