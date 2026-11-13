@@ -18,6 +18,7 @@ import {
   Truck,
   X,
 } from "lucide-react";
+import { toast } from "react-toastify";
 import { apiRequest } from "./api.js";
 
 const fallbackProducts = [
@@ -432,7 +433,6 @@ function App() {
   const [wishlist, setWishlist] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [cartOpen, setCartOpen] = useState(false);
-  const [cartNotice, setCartNotice] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
@@ -500,7 +500,7 @@ function App() {
       [productId]: (current[productId] || 0) + 1,
     }));
     const product = products.find((item) => item.id === productId);
-    setCartNotice(`${product?.name || "Product"} added to your bag.`);
+    toast.success(`${product?.name || "Product"} added to your bag.`);
     setSelectedProduct(null);
     setCartOpen(true);
     setCheckoutState({ loading: false, error: "", success: "" });
@@ -508,7 +508,6 @@ function App() {
 
   function closeCart() {
     setCartOpen(false);
-    setCartNotice("");
   }
 
   function viewCartProduct(product) {
@@ -932,7 +931,6 @@ function App() {
             </div>
             {cartCount ? (
               <>
-                {cartNotice && <p className="cart-notice" role="status"><Check size={15} /> {cartNotice}</p>}
                 <div className="cart-items">
                   {products.filter((product) => cart[product.id]).map((product) => (
                     <div className="cart-item" key={product.id}>
