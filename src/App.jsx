@@ -432,6 +432,7 @@ function App() {
   const [wishlist, setWishlist] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [cartOpen, setCartOpen] = useState(false);
+  const [cartNotice, setCartNotice] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
@@ -498,9 +499,21 @@ function App() {
       ...current,
       [productId]: (current[productId] || 0) + 1,
     }));
+    const product = products.find((item) => item.id === productId);
+    setCartNotice(`${product?.name || "Product"} added to your bag.`);
     setSelectedProduct(null);
     setCartOpen(true);
     setCheckoutState({ loading: false, error: "", success: "" });
+  }
+
+  function closeCart() {
+    setCartOpen(false);
+    setCartNotice("");
+  }
+
+  function viewCartProduct(product) {
+    closeCart();
+    setSelectedProduct(product);
   }
 
   function updateQuantity(productId, change) {
@@ -911,14 +924,15 @@ function App() {
       </footer>
 
       {cartOpen && (
-        <div className="overlay" onMouseDown={(event) => { if (event.target === event.currentTarget) setCartOpen(false); }}>
+        <div className="overlay" onMouseDown={(event) => { if (event.target === event.currentTarget) closeCart(); }}>
           <aside className="side-drawer" aria-label="Shopping bag">
             <div className="drawer-header">
               <div><p className="eyebrow">A GOOD CHOICE</p><h2>Your bag <span>({cartCount})</span></h2></div>
-              <button className="icon-button" type="button" aria-label="Close bag" onClick={() => setCartOpen(false)}><X size={21} /></button>
+              <button className="icon-button" type="button" aria-label="Close bag" onClick={closeCart}><X size={21} /></button>
             </div>
             {cartCount ? (
               <>
+                {cartNotice && <p className="cart-notice" role="status"><Check size={15} /> {cartNotice}</p>}
                 <div className="cart-items">
                   {products.filter((product) => cart[product.id]).map((product) => (
                     <div className="cart-item" key={product.id}>
@@ -930,6 +944,7 @@ function App() {
                           <span>{cart[product.id]}</span>
                           <button type="button" aria-label={`Add one ${product.name}`} onClick={() => updateQuantity(product.id, 1)}><Plus size={13} /></button>
                         </div>
+                        <button className="cart-item-view" type="button" onClick={() => viewCartProduct(product)}>View product</button>
                       </div>
                       <button className="remove-item" type="button" aria-label={`Remove ${product.name}`} onClick={() => setCart((current) => { const next = { ...current }; delete next[product.id]; return next; })}><X size={15} /></button>
                     </div>
@@ -949,7 +964,7 @@ function App() {
                       {checkoutState.loading ? "Placing order…" : "Place order"} <ArrowRight size={16} />
                     </button>
                   </form>
-                  <button className="continue-shopping" type="button" onClick={() => setCartOpen(false)}>Keep looking around</button>
+                  <button className="continue-shopping" type="button" onClick={closeCart}>Continue shopping</button>
                 </div>
               </>
             ) : checkoutState.success ? (
@@ -957,14 +972,14 @@ function App() {
                 <Check size={30} strokeWidth={1.3} />
                 <h3>Your order is on its way.</h3>
                 <p>{checkoutState.success}</p>
-                <button className="button button-dark" type="button" onClick={() => { setCartOpen(false); setCheckoutState({ loading: false, error: "", success: "" }); }}>Keep looking around <ArrowRight size={16} /></button>
+                <button className="button button-dark" type="button" onClick={() => { closeCart(); setCheckoutState({ loading: false, error: "", success: "" }); }}>Continue shopping <ArrowRight size={16} /></button>
               </div>
             ) : (
               <div className="empty-cart">
                 <ShoppingBag size={30} strokeWidth={1.3} />
                 <h3>It’s a little quiet in here.</h3>
                 <p>Your next favorite thing is waiting to be found.</p>
-                <button className="button button-dark" type="button" onClick={() => setCartOpen(false)}>Explore the edit <ArrowRight size={16} /></button>
+                <button className="button button-dark" type="button" onClick={closeCart}>Explore the edit <ArrowRight size={16} /></button>
               </div>
             )}
           </aside>
