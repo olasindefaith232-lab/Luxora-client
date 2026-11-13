@@ -18,8 +18,9 @@ import {
   Truck,
   X,
 } from "lucide-react";
+import { apiRequest } from "./api.js";
 
-const products = [
+const fallbackProducts = [
   {
     id: 1,
     name: "The Everyday Tote",
@@ -210,8 +211,8 @@ function ProductCard({ product, wishlist, onSelect, onToggleWishlist, onAdd }) {
         >
           <Heart size={17} fill={isSaved ? "currentColor" : "none"} />
         </button>
-        <button className="quick-add" type="button" onClick={() => onAdd(product.id)}>
-          <Plus size={15} /> Quick add
+        <button className="quick-add" type="button" onClick={() => onAdd(product.id)} disabled={product.stock === 0}>
+          <Plus size={15} /> {product.stock === 0 ? "Sold out" : "Quick add"}
         </button>
       </div>
       <div className="product-details">
@@ -228,7 +229,19 @@ function ProductCard({ product, wishlist, onSelect, onToggleWishlist, onAdd }) {
   );
 }
 
-function PageContent({ route, products, wishlist, showWishlist, search, onSelect, onToggleWishlist, onAdd }) {
+function PageContent({
+  route,
+  products,
+  wishlist,
+  showWishlist,
+  search,
+  journalPosts,
+  contactState,
+  onContactSubmit,
+  onSelect,
+  onToggleWishlist,
+  onAdd,
+}) {
   if (route.type === "collection") {
     const collectionProducts = products.filter(
       (product) => product.category === route.category.name,
@@ -270,7 +283,10 @@ function PageContent({ route, products, wishlist, showWishlist, search, onSelect
 
   if (route.type === "shop" || route.type === "new-in") {
     const listing = (route.type === "new-in"
-      ? products.filter((product) => product.badge === "NEW ARRIVAL" || product.id > 4)
+      ? products.filter((product) => (
+        product.badge === "NEW ARRIVAL"
+        || (Number(product.id) > 4 && Number(product.id) <= 8)
+      ))
       : products
     ).filter((product) =>
       (!search || `${product.name} ${product.category}`.toLowerCase().includes(search.toLowerCase()))
@@ -320,6 +336,26 @@ function PageContent({ route, products, wishlist, showWishlist, search, onSelect
   }
 
   if (route.type === "journal") {
+    const stories = journalPosts.length ? journalPosts : [
+      {
+        title: "A softer way to get dressed",
+        image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1000&q=85",
+        category: "THE EVERYDAY EDIT",
+        excerpt: "Thoughtful pieces for the everyday.",
+      },
+      {
+        title: "The little things worth keeping",
+        image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=1000&q=85",
+        category: "OBJECTS WITH A STORY",
+        excerpt: "Meet the considered details that make a piece special.",
+      },
+      {
+        title: "A moment for your own ritual",
+        image: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=1000&q=85",
+        category: "A LITTLE SELF-CARE",
+        excerpt: "Small ways to make an ordinary day feel lovely.",
+      },
+    ];
     return (
       <section className="journal-page">
         <div className="page-intro">
@@ -328,28 +364,13 @@ function PageContent({ route, products, wishlist, showWishlist, search, onSelect
           <p>Good stories, thoughtful finds, and small ways to make the everyday lovely.</p>
         </div>
         <div className="section journal-grid">
-          {[
-            {
-              title: "A softer way to get dressed",
-              image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1000&q=85",
-              category: "THE EVERYDAY EDIT",
-            },
-            {
-              title: "The little things worth keeping",
-              image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=1000&q=85",
-              category: "OBJECTS WITH A STORY",
-            },
-            {
-              title: "A moment for your own ritual",
-              image: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=1000&q=85",
-              category: "A LITTLE SELF-CARE",
-            },
-          ].map((story) => (
-            <article className="journal-card" key={story.title}>
+          {stories.map((story) => (
+            <article className="journal-card" key={story.id || story.title}>
               <img src={story.image} alt="" loading="lazy" />
               <p className="eyebrow">{story.category}</p>
               <h2>{story.title}</h2>
-              <span>Coming soon <ArrowRight size={14} /></span>
+              <p className="journal-excerpt">{story.excerpt || "A little note from Luxora"}</p>
+              {story.content && <details className="journal-story"><summary>Read the story <ArrowRight size={14} /></summary><p>{story.content}</p></details>}
             </article>
           ))}
         </div>
@@ -358,6 +379,26 @@ function PageContent({ route, products, wishlist, showWishlist, search, onSelect
   }
 
   if (route.type === "info") {
+    if (route.title === "Get in touch") {
+      return (
+        <section className="page-intro contact-page">
+          <p className="eyebrow">{route.eyebrow}</p>
+          <h1>We’d love to <em>hear from you.</em></h1>
+          <p>Leave us a note and our team will be in touch as soon as we can.</p>
+          <form className="contact-form" onSubmit={onContactSubmit}>
+            <label>Your name<input name="name" required maxLength="120" /></label>
+            <label>Email address<input name="email" type="email" required maxLength="254" /></label>
+            <label>Subject<input name="subject" required maxLength="160" /></label>
+            <label>Your message<textarea name="message" rows="5" required maxLength="5000" /></label>
+            {contactState.error && <p className="form-feedback form-error" role="alert">{contactState.error}</p>}
+            {contactState.success && <p className="form-feedback form-success" role="status">{contactState.success}</p>}
+            <button className="button button-dark" type="submit" disabled={contactState.loading}>
+              {contactState.loading ? "Sending…" : "Send your note"} <ArrowRight size={16} />
+            </button>
+          </form>
+        </section>
+      );
+    }
     return (
       <section className="page-intro">
         <p className="eyebrow">{route.eyebrow}</p>
@@ -380,6 +421,10 @@ function PageContent({ route, products, wishlist, showWishlist, search, onSelect
 
 function App() {
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
+  const [products, setProducts] = useState(fallbackProducts);
+  const [journalPosts, setJournalPosts] = useState([]);
+  const [siteSettings, setSiteSettings] = useState({});
+  const [apiError, setApiError] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [search, setSearch] = useState("");
   const [showWishlist, setShowWishlist] = useState(false);
@@ -390,7 +435,29 @@ function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
+  const [subscribeError, setSubscribeError] = useState("");
+  const [contactState, setContactState] = useState({ loading: false, error: "", success: "" });
+  const [checkout, setCheckout] = useState({ name: "", email: "", phone: "", address: "" });
+  const [checkoutState, setCheckoutState] = useState({ loading: false, error: "", success: "" });
   const route = getRoute(currentPath);
+
+  useEffect(() => {
+    let active = true;
+    Promise.all([
+      apiRequest("/products"),
+      apiRequest("/settings"),
+      apiRequest("/journal"),
+    ]).then(([catalog, settings, journal]) => {
+      if (!active) return;
+      setProducts(catalog.products);
+      setSiteSettings(settings.settings || {});
+      setJournalPosts(journal.posts || []);
+      setApiError("");
+    }).catch((error) => {
+      if (active) setApiError(`The store API is unavailable. Showing preview products. ${error.message}`);
+    });
+    return () => { active = false; };
+  }, []);
 
   useEffect(() => {
     const handlePopState = () => setCurrentPath(window.location.pathname);
@@ -418,7 +485,7 @@ function App() {
         `${product.name} ${product.category}`.toLowerCase().includes(normalizedSearch);
       return categoryMatches && wishlistMatches && searchMatches;
     });
-  }, [activeCategory, search, showWishlist, wishlist]);
+  }, [activeCategory, products, search, showWishlist, wishlist]);
 
   const cartCount = Object.values(cart).reduce((sum, quantity) => sum + quantity, 0);
   const cartTotal = products.reduce(
@@ -461,14 +528,56 @@ function App() {
 
   function subscribe(event) {
     event.preventDefault();
-    if (email.trim()) setSubscribed(true);
+    if (!email.trim()) return;
+    setSubscribeError("");
+    apiRequest("/newsletter", { method: "POST", body: JSON.stringify({ email }) })
+      .then(() => setSubscribed(true))
+      .catch((error) => setSubscribeError(error.message));
+  }
+
+  async function submitContact(event) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const values = Object.fromEntries(new FormData(form));
+    setContactState({ loading: true, error: "", success: "" });
+    try {
+      const result = await apiRequest("/contact", { method: "POST", body: JSON.stringify(values) });
+      form.reset();
+      setContactState({ loading: false, error: "", success: result.message });
+    } catch (error) {
+      setContactState({ loading: false, error: error.message, success: "" });
+    }
+  }
+
+  async function submitOrder(event) {
+    event.preventDefault();
+    setCheckoutState({ loading: true, error: "", success: "" });
+    try {
+      const result = await apiRequest("/orders", {
+        method: "POST",
+        body: JSON.stringify({
+          customer: checkout,
+          items: Object.entries(cart).map(([productId, quantity]) => ({ productId, quantity })),
+        }),
+      });
+      setCart({});
+      setCheckout({ name: "", email: "", phone: "", address: "" });
+      setCheckoutState({
+        loading: false,
+        error: "",
+        success: `Order ${result.order.id.slice(0, 8).toUpperCase()} received. We’ll be in touch shortly.`,
+      });
+    } catch (error) {
+      setCheckoutState({ loading: false, error: error.message, success: "" });
+    }
   }
 
   return (
     <div className="site-shell">
+      {apiError && <p className="api-notice" role="status">{apiError}</p>}
       <div className="announcement">
-        <span>THE LITTLE THINGS, BEAUTIFULLY CONSIDERED</span>
-        <span className="announcement-note">Complimentary delivery on orders over ₦75,000</span>
+        <span>{siteSettings.announcement || "THE LITTLE THINGS, BEAUTIFULLY CONSIDERED"}</span>
+        <span className="announcement-note">{siteSettings.deliveryNote || "Complimentary delivery on orders over ₦75,000"}</span>
         <ArrowRight size={14} aria-hidden="true" />
       </div>
 
@@ -573,6 +682,9 @@ function App() {
             wishlist={wishlist}
             showWishlist={showWishlist}
             search={search}
+            journalPosts={journalPosts}
+            contactState={contactState}
+            onContactSubmit={submitContact}
             onSelect={setSelectedProduct}
             onToggleWishlist={toggleWishlist}
             onAdd={addToCart}
@@ -742,7 +854,7 @@ function App() {
             <h2>A little more <em>lovely</em> in your inbox.</h2>
             <p className="newsletter-copy">New finds, good stories, and first dibs on the things you’ll love. Never too much, always worth a read.</p>
             {subscribed ? (
-              <p className="subscribe-success"><Check size={17} /> Thanks for your interest. Newsletter sign-up is coming soon.</p>
+              <p className="subscribe-success"><Check size={17} /> You’re on the list. Thanks for being here.</p>
             ) : (
               <form className="subscribe-form" onSubmit={subscribe}>
                 <label className="visually-hidden" htmlFor="newsletter-email">Your email address</label>
@@ -750,6 +862,7 @@ function App() {
                 <button type="submit">Count me in <ArrowRight size={15} /></button>
               </form>
             )}
+            {subscribeError && <p className="form-feedback form-error" role="alert">{subscribeError}</p>}
             <small>By signing up, you agree to our privacy policy. Unsubscribe whenever.</small>
           </div>
         </section>
@@ -822,10 +935,27 @@ function App() {
                 <div className="drawer-summary">
                   <div><span>Subtotal</span><strong>{formatPrice(cartTotal)}</strong></div>
                   <p>Delivery is calculated at checkout.</p>
-                  <button className="button button-dark" type="button" disabled>Checkout coming soon</button>
+                  <form className="checkout-form" onSubmit={submitOrder}>
+                    <h3>Delivery details</h3>
+                    <label>Your name<input required maxLength="120" value={checkout.name} onChange={(event) => setCheckout({ ...checkout, name: event.target.value })} /></label>
+                    <label>Email address<input type="email" required maxLength="254" value={checkout.email} onChange={(event) => setCheckout({ ...checkout, email: event.target.value })} /></label>
+                    <label>Phone number<input required maxLength="40" value={checkout.phone} onChange={(event) => setCheckout({ ...checkout, phone: event.target.value })} /></label>
+                    <label>Delivery address<textarea required maxLength="500" rows="3" value={checkout.address} onChange={(event) => setCheckout({ ...checkout, address: event.target.value })} /></label>
+                    {checkoutState.error && <p className="form-feedback form-error" role="alert">{checkoutState.error}</p>}
+                    <button className="button button-dark" type="submit" disabled={checkoutState.loading}>
+                      {checkoutState.loading ? "Placing order…" : "Place order"} <ArrowRight size={16} />
+                    </button>
+                  </form>
                   <button className="continue-shopping" type="button" onClick={() => setCartOpen(false)}>Keep looking around</button>
                 </div>
               </>
+            ) : checkoutState.success ? (
+              <div className="empty-cart order-success">
+                <Check size={30} strokeWidth={1.3} />
+                <h3>Your order is on its way.</h3>
+                <p>{checkoutState.success}</p>
+                <button className="button button-dark" type="button" onClick={() => { setCartOpen(false); setCheckoutState({ loading: false, error: "", success: "" }); }}>Keep looking around <ArrowRight size={16} /></button>
+              </div>
             ) : (
               <div className="empty-cart">
                 <ShoppingBag size={30} strokeWidth={1.3} />

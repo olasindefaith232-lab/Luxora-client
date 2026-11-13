@@ -66,6 +66,67 @@ button:disabled {
   overflow: hidden;
 }
 
+.api-notice {
+  margin: 0;
+  padding: 9px 5.55%;
+  background: #f7e9e5;
+  color: #85483e;
+  font-size: 10px;
+  text-align: center;
+}
+
+.form-feedback {
+  margin: 12px 0;
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+.form-error {
+  color: #9a493f;
+}
+
+.form-success {
+  color: #4c684b;
+}
+
+.contact-page {
+  padding-bottom: 90px;
+}
+
+.contact-form {
+  width: min(520px, 100%);
+  margin: 35px auto 0;
+  display: grid;
+  gap: 16px;
+  text-align: left;
+}
+
+.contact-form label,
+.checkout-form label {
+  display: grid;
+  gap: 7px;
+  color: #625f57;
+  font-size: 10px;
+}
+
+.contact-form input,
+.contact-form textarea,
+.checkout-form input,
+.checkout-form textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #dcd7cd;
+  border-radius: 0;
+  background: #fffefa;
+  color: var(--ink);
+  font-size: 11px;
+  resize: vertical;
+}
+
+.contact-form .button {
+  justify-self: start;
+}
+
 .announcement {
   height: 34px;
   padding: 0 5.55%;
@@ -1262,6 +1323,7 @@ p {
 
 .cart-items {
   flex: 1;
+  min-height: 80px;
   overflow: auto;
 }
 
@@ -1337,7 +1399,9 @@ p {
 }
 
 .drawer-summary {
+  max-height: 58vh;
   padding-top: 18px;
+  overflow: auto;
 }
 
 .drawer-summary > div {
@@ -1355,6 +1419,22 @@ p {
 
 .drawer-summary .button {
   width: 100%;
+}
+
+.checkout-form {
+  display: grid;
+  gap: 11px;
+}
+
+.checkout-form h3 {
+  margin: 0 0 2px;
+  font-family: var(--serif);
+  font-size: 17px;
+  font-weight: 400;
+}
+
+.checkout-form .button {
+  margin-top: 3px;
 }
 
 .continue-shopping {
@@ -2140,13 +2220,41 @@ p {
   font-weight: 400;
 }
 
-.journal-card > span {
-  margin-top: 14px;
+.journal-excerpt {
+  margin: 10px 0 0;
+  color: #777268;
+  font-size: 10px;
+  line-height: 1.7;
+}
+
+.journal-story {
+  margin-top: 12px;
+}
+
+.journal-story summary {
   display: inline-flex;
   align-items: center;
   gap: 7px;
   color: #817d73;
   font-size: 9px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.journal-story summary::-webkit-details-marker {
+  display: none;
+}
+
+.journal-story[open] summary svg {
+  transform: rotate(90deg);
+}
+
+.journal-story > p {
+  margin: 10px 0 0;
+  color: #706c63;
+  font-size: 10px;
+  line-height: 1.8;
+  white-space: pre-line;
 }
 
 @media (max-width: 850px) {
