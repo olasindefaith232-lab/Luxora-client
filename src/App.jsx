@@ -498,6 +498,9 @@ function App() {
       ...current,
       [productId]: (current[productId] || 0) + 1,
     }));
+    setSelectedProduct(null);
+    setCartOpen(true);
+    setCheckoutState({ loading: false, error: "", success: "" });
   }
 
   function updateQuantity(productId, change) {
